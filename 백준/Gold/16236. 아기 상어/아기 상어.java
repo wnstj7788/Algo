@@ -1,94 +1,102 @@
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
     static int n;
-    static int[][] board;
-    static int dx[] = {-1, 0, 1, 0}; //위 왼 아래 오
-    static int dy[] = {0, 1, 0, -1};
-    static ArrayList<shark> fishes;
+    static int sharkY;
+    static int sharkX;
+    static int sharkSize = 2;
+    static int eatCnt;
+    // 상좌우하 dy dx
+    static int[] dy = {-1, 0, 0, 1};
+    static int[] dx = {0, -1, 1, 0};
+    static int answer;
+    static boolean[][] visited;
 
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+    static class Pos {
+        int y;
+        int x;
+        int distance;
 
-        n = sc.nextInt();
-        board = new int[n][n];
-        Queue<shark> q = new LinkedList<>();
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j < n; j++){
-                board[i][j] = sc.nextInt();
-                if(board[i][j] == 9){
-                    q.add(new shark(i, j, 0));
-                    board[i][j] = 0;
-                }
-            }
-        }
-
-        int eat = 0;
-        int time = 0;
-        int age = 2;
-        while(true){
-            LinkedList<shark> fish = new LinkedList<>();
-            int[][] dist = new int[n][n];
-            
-            while (!q.isEmpty()) {
-                shark now = q.poll();
-
-                for(int d=0; d<4; d++){
-                    int nx = now.x + dx[d];
-                    int ny = now.y + dy[d];
-
-                    if(nx >= 0 && ny >= 0 && nx < n && ny < n && dist[nx][ny]==0 && board[nx][ny] <= age){
-                        dist[nx][ny] = dist[now.x][now.y] + 1;
-                        q.add(new shark(nx, ny, dist[nx][ny]));
-                        if(1 <= board[nx][ny] && board[nx][ny] <= 6 && board[nx][ny] < age)
-                            fish.add(new shark(nx, ny, dist[nx][ny]));
-                    }
-                }
-            }
-
-            if(fish.size() == 0){
-                System.out.println(time);
-                return;
-            }
-
-            shark currentFish = fish.get(0);
-            for(int i = 1; i < fish.size(); i++){
-                if(currentFish.dist > fish.get(i).dist) {
-                    currentFish = fish.get(i);
-                }
-                else if(currentFish.dist == fish.get(i).dist) {
-                    if(currentFish.x > fish.get(i).x) currentFish = fish.get(i);
-                    else if(currentFish.x == fish.get(i).x){
-                        if(currentFish.y > fish.get(i).y) currentFish = fish.get(i);
-                    }
-                }
-            }
-
-            time += currentFish.dist;
-            eat++;
-            board[currentFish.x][currentFish.y] = 0;
-            if(eat == age) {
-                age++;
-                eat = 0;
-            }
-            q.add(new shark(currentFish.x, currentFish.y, 0));
+        Pos(int y, int x, int distance) {
+            this.y = y;
+            this.x = x;
+            this.distance = distance;
         }
     }
 
-    public static class shark {
-        int x;
-        int y;
-        int dist;
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
 
-        public shark(int x, int y, int dist) {
-            super();
-            this.x = x;
-            this.y = y;
-            this.dist = dist;
+        n = Integer.parseInt(br.readLine());
+        int[][] map = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < n; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+                if (map[i][j] != 0) {
+                    if (map[i][j] == 9) {
+                        sharkY = i;
+                        sharkX = j;
+                        map[i][j] = 0; // 처음 상어의 위치는 0으로 초기화
+                    }
+                }
+            }
         }
+
+        Queue<Pos> q = new PriorityQueue<>((o1, o2) -> {
+            if (o1.distance == o2.distance) {
+                if (o1.y == o2.y) return Integer.compare(o1.x, o2.x);
+                return Integer.compare(o1.y, o2.y);
+            }
+            return Integer.compare(o1.distance, o2.distance);
+        });
+
+        // 상어의 처음 위치 큐에 삽입
+        q.add(new Pos(sharkY, sharkX, 0));
+        visited = new boolean[n][n];
+        visited[sharkY][sharkX] = true;
+
+        while (!q.isEmpty()) {
+            Pos curPos = q.poll(); // 상어의 현재 위치
+
+            for (int i = 0; i <= 3; i++) {
+                int moveY = curPos.y + dy[i];
+                int moveX = curPos.x + dx[i];
+                if (!(moveY < n && moveX < n && moveY >= 0 && moveX >= 0)) continue;
+                if (visited[moveY][moveX]) continue;
+                visited[moveY][moveX] = true;
+
+                if (map[moveY][moveX] <= sharkSize)
+                    q.add(new Pos(moveY, moveX, curPos.distance + 1));
+            }
+
+            if (q.peek() != null) {
+                Pos peek = q.peek();
+                if (map[peek.y][peek.x] < sharkSize && map[peek.y][peek.x] > 0) {
+                    // 큐에 담긴 pos에 있는 물고기가 상어보다 작으면 물고기를 먹는다
+                    eatCnt++;
+                    if (eatCnt == sharkSize) {
+                        sharkSize++;
+                        eatCnt = 0;
+                    }
+                    map[peek.y][peek.x] = 0;
+
+                    // 큐를 비우고 상어를 peek 위치로 이동
+                    q.clear();
+                    q.add(new Pos(peek.y, peek.x, 0));
+                    answer += peek.distance;
+                    visited = new boolean[n][n];
+                    visited[peek.y][peek.x] = true;
+                }
+            }
+        }
+
+        System.out.println(answer);
     }
 }
