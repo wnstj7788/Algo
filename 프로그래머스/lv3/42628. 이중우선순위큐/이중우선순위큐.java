@@ -1,56 +1,43 @@
 import java.util.*;
 
-public class Solution {
-    private PriorityQueue<Integer> max;
-    private PriorityQueue<Integer> min;
-
+class Solution {
     public int[] solution(String[] operations) {
-        min = new PriorityQueue<>();
-        max = new PriorityQueue<>(Collections.reverseOrder());
+
+        TreeMap<Integer, Integer> tree = new TreeMap<>();
+
+        int num = 0;
+        int cnt = 0;
 
         for (String operation : operations) {
-            String[] tokens = operation.split(" ");
-            char command = tokens[0].charAt(0);
-            int num = Integer.parseInt(tokens[1]);
+            String[] temp = operation.split(" ");
+            char command = temp[0].charAt(0);
+            num = Integer.parseInt(temp[1]);
 
             if (command == 'I') {
-                push(num);
-            } else if (command == 'D') {
+                tree.put(num,cnt++);
+            } else {
                 if (num == 1) {
-                    maxPop();
-                } else if(num == -1) {
-                    minPop();
+                    tree.pollLastEntry(); // 최대값 제거
+                } else if (num == -1) {
+                    tree.pollFirstEntry(); // 최소값 제거
                 }
             }
         }
+        
+        int min = 0;
+        int max = 0;
 
-        int[] answer = new int[2];
-        if (!max.isEmpty()) {
-            answer[0] = max.poll();
-            answer[1] = min.poll();
+        if (!tree.isEmpty()) {
+            max = tree.firstKey(); // 최대값
+            min = tree.lastKey(); // 최소값
         }
+        
+        int answer[] = {min, max};
 
         return answer;
     }
-
-    public void push(int num) {
-        max.add(num);
-        min.add(num);
-    }
-
-    public void maxPop() {
-        if (!max.isEmpty()) {
-            int num = max.poll();
-     
-            min.remove(num);
-        }
-    }
-
-    public void minPop() {
-        if (!min.isEmpty()) {
-            int num = min.poll();
-         
-            max.remove(num);
-        }
-    }
 }
+
+
+
+
