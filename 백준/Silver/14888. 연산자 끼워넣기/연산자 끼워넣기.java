@@ -1,105 +1,63 @@
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Scanner;
-
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
+ 
 public class Main {
+ 
+	public static int MAX = Integer.MIN_VALUE;
+	public static int MIN = Integer.MAX_VALUE;
+	public static int[] operator = new int[4];
+	public static int[] number;
 	public static int N;
-	public static int arr[];
-	public static String Operator_char[];
-	public static String result[];
-	public static  boolean visited[];
-	public static int max = Integer.MIN_VALUE;
-	public static int min = Integer.MAX_VALUE; 
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		N = sc.nextInt();
+	public static void main(String[] args) throws IOException {
+ 
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+ 
+		N = Integer.parseInt(br.readLine());
+		number = new int[N];
+ 
 
-		arr = new int[N];
-		Operator_char = new String[N - 1];
-		result = new String[N - 1];
-		visited = new boolean[N-1];
-
-		for (int i = 0; i < arr.length; i++) {
-			arr[i] = sc.nextInt();
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		for (int i = 0; i < N; i++) {
+			number[i] = Integer.parseInt(st.nextToken());
 		}
 
-		int Operator[] = new int[4];
-
-		for (int i = 0; i < Operator.length; i++) {
-			Operator[i] = sc.nextInt();
+		st = new StringTokenizer(br.readLine());
+		for (int i = 0; i < 4; i++) {
+			operator[i] = Integer.parseInt(st.nextToken());
 		}
-		int cnt = 0;
-		for (int i = 0; i < Operator.length; i++) {
-			if (i == 0) {
-				for (int j = 0; j < Operator[i]; j++) {
-					Operator_char[cnt] = "+";
-					cnt++;
-
-				}
-			} else if (i == 1) {
-				for (int j = 0; j < Operator[i]; j++) {
-					Operator_char[cnt] = "-";
-					cnt++;
-				}
-			} else if (i == 2) {
-				for (int j = 0; j < Operator[i]; j++) {
-					Operator_char[cnt] = "*";
-					cnt++;
-				}
-			} else {
-				for (int j = 0; j < Operator[i]; j++) {
-					Operator_char[cnt] = "/";
-					cnt++;
-				}
-			}
-
-		}
-		perm(0);
-		System.out.println(max);
-		System.out.println(min);
-
-		// for(char ch : Operator_char ) System.out.println(ch +" ");
+ 
+		dfs(number[0], 1);
+ 
+		System.out.println(MAX);
+		System.out.println(MIN);
+ 
 	}
-
-	static void perm(int idx) {
-	
-		if (idx == N - 1) {
-			
-			int num = arr[0];
-			
-			for(int i = 0; i < N-1; i++ ) {
-				if(result[i].equals("+")) {
-					num += arr[i+1];
-				}else if(result[i].equals("-")) {
-					num -= arr[i+1];
-				}else if(result[i].equals("*")) {
-					num *= arr[i+1];
-				}else if(result[i].equals("/")) {
-					num /= arr[i+1];
-				}
-				
-			}
-			
-			max = Math.max(num, max);
-			min = Math.min(num, min);
+ 
+	public static void dfs(int num, int idx) {
+		if (idx == N) {
+			MAX = Math.max(MAX, num);
+			MIN = Math.min(MIN, num);
 			return;
 		}
-
-		for (int i = 0; i < Operator_char.length; i++) {
-			if(visited[i]) continue;
-			// System.out.println("dighghghghghgh");
-			// System.out.println(Operator_char[i]);
-			result[idx] = Operator_char[i];
-			visited[i] = true;
-			perm(idx + 1); // 시작점을 미뤄버려서 한번 같던 요소는 다시 접근하지 않음을 이용
-			
-			visited[i] = false;
+ 
+		for (int i = 0; i < 4; i++) {
+			if (operator[i] > 0) {
+				operator[i]--;
+				switch (i) {
+				case 0:	dfs(num + number[idx], idx + 1);
+				break;
+				case 1:	dfs(num - number[idx], idx + 1);
+				break;
+				case 2:	dfs(num * number[idx], idx + 1);
+				break;
+				case 3:	dfs(num / number[idx], idx + 1);
+				break;
+				}
+				operator[i]++;
+			}
 		}
 	}
-	
-	
-	
-    
-	
-	
+ 
 }
