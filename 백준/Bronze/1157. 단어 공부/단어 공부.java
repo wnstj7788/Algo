@@ -1,35 +1,37 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+
 public class Main {
 
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		
-		String s = sc.next();
-		
-		String k = s.toUpperCase();
-		
-		//ASCII CODE  A = 65
-		
-		int[] arr = new int[26];// 알파벳에 해당하는 배열  
-		
-		for(int i = 0; i < k.length(); i++) {
-			arr[k.charAt(i) - 'A' ]++;
-		}
-		
-		int max = -1;
-		char ch = '?';
-		for(int j = 0; j < arr.length; j++) {
-			if(arr[j] > max) {
-				max = arr[j];
-				ch = (char) (j + 65); 
-			}
-			else if(arr[j] == max) {
-				ch = '?';
-			}
-		}
-		
-		System.out.println(ch);
-	}
+    public static void main(String[] args) throws IOException{
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int[] arr = new int[26]; // 영문자의 개수는 26개임
+        String s = br.readLine();
+
+
+        for (int i = 0; i < s.length(); i++) {
+            if ('a' <= s.charAt(i) && s.charAt(i) <= 'z') {
+                arr[s.charAt(i) - 97]++;
+            } else {
+                arr[s.charAt(i) - 65]++;
+            }
+        }
+        int max = -1;
+        char ch = '?';
+        for (int i = 0; i < 26; i++) {
+
+            if (arr[i] > max) {
+                max = arr[i];
+                ch = (char) (i + 65);
+            }
+            else if (arr[i] == max) {
+                ch = '?';
+            }
+        }
+        System.out.print(ch);
+    }
 
 }
-	
