@@ -1,51 +1,47 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Scanner;
-
+import java.util.StringTokenizer;
+ 
 public class Main {
-	public static boolean[] used;
-	public static int arr[];
-	public static int result[];
-	static int N;
-	static int R;
-
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		N = sc.nextInt();
-		R = sc.nextInt();
-
-		arr = new int[N];
-		used = new boolean[N];
-		result = new int [R];
-
-		for (int i = 0; i < N; i++) {
-			arr[i] = i + 1;
-		}
+ 
+	public static int[] arr;
+	public static boolean[] visit;
+	public static StringBuilder sb = new StringBuilder();
+ 
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+ 
+		int N = Integer.parseInt(st.nextToken());
+		int M = Integer.parseInt(st.nextToken());
 		
-		perm(0);
+		arr = new int[M];
+		visit = new boolean[N];
+		permutation(N, M, 0);
 
+		System.out.println(sb);
+ 
 	}
-
-	public static void perm(int idx) {
-		if (idx == R) {
-			for(int i = 0; i < result.length; i++) {
-				System.out.print(result[i] + " ");
+ 
+	public static void permutation(int N, int M, int depth) {
+		if (depth == M) {
+			for (int val : arr) {
+				sb.append(val).append(' ');
 			}
-			System.out.println();
+			sb.append('\n');
 			return;
-			
 		}
-
-		for (int i = 0; i < arr.length; i++) {
-			if(used[i]) continue; // 사용중이라면 무시하기 
-			
-			result[idx] = arr[i]; // 사용중인 숫자를 빼고 다른 숫자로 출력 
-			used[i] = true;
-			
-			perm(idx +1);
-			
-			used[i] = false;
-			
-			
+ 
+		for (int i = 0; i < N; i++) {
+			if (!visit[i]) {
+				visit[i] = true;
+				arr[depth] = i + 1;
+				permutation(N, M, depth + 1);
+				visit[i] = false;
+			}
 		}
-
 	}
+ 
 }
