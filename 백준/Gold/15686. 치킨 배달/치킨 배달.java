@@ -1,75 +1,85 @@
-import java.awt.*;
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.BufferedWriter;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Main {
+    static int[][] arr;
+    static boolean[] visited;
+    static int n, m, answer;
+    static ArrayList<Point> home;
+    static ArrayList<Point> chicken;
 
-    static ArrayList<Point> chickenHouse = new ArrayList<>();
-    static ArrayList<Point> house = new ArrayList<>();
-    static int N, M;
-    static boolean[] selected;
-    static int result[];
-    static int min = Integer.MAX_VALUE;
-    static int map[][];
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
 
-        map = new int[N][N];
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
 
-        for (int i = 0; i < N; i++) {
+        home = new ArrayList<>();
+        chicken = new ArrayList<>();
+        arr = new int[n][n];
+
+        for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < N; j++) {
-                int temp = Integer.parseInt(st.nextToken());
-                if (temp == 2) {
-                    chickenHouse.add(new Point(i, j));
+            for (int j = 0; j < n; j++) {
+                arr[i][j] = Integer.parseInt(st.nextToken());
+
+                if (arr[i][j] == 1) {
+                    home.add(new Point(i, j));
+                } else if (arr[i][j] == 2) {
+                    chicken.add(new Point(i, j));
                 }
-                if (temp == 1) {
-                    house.add(new Point(i, j));
-                }
-                map[i][j] = temp;
             }
         }
 
-        selected = new boolean[chickenHouse.size()];
-        result = new int[M];
-        combination(0, 0);
-        System.out.println(min);
+        answer = Integer.MAX_VALUE;
+        visited = new boolean[chicken.size()];
+
+        solve(0, 0);
+        bw.write(answer + "\n");
+        bw.flush();
+        bw.close();
+        br.close();
     }
 
-    private static void combination(int cnt, int start) {
-        if (cnt == M) {
-            min = Math.min(min, calculateDistance());
+    public static void solve(int start, int depth) {
+        if (depth == m) {
+            int res = 0;
+
+            for (int i = 0; i < home.size(); i++) {
+                int temp = Integer.MAX_VALUE;
+                for (int j = 0; j < chicken.size(); j++) {
+                    if (visited[j]) {
+                        int dist = Math.abs(home.get(i).x - chicken.get(j).x)
+                                + Math.abs(home.get(i).y - chicken.get(j).y);
+
+                        temp = Math.min(temp, dist);
+                    }
+                }
+                res += temp;
+            }
+            answer = Math.min(answer, res);
             return;
         }
 
-        for (int i = start; i < chickenHouse.size(); i++) {
-            selected[i] = true;
-            combination(cnt + 1, i + 1);
-            selected[i] = false;
+        for (int i = start; i < chicken.size(); i++) {
+            visited[i] = true;
+            solve(i + 1, depth + 1);
+            visited[i] = false;
         }
     }
 
-    private static int calculateDistance() {
-        int total = 0;
+    static class Point {
+        int x, y;
 
-        for (Point h : house) {
-            int minDist = Integer.MAX_VALUE;
-            for (int i = 0; i < chickenHouse.size(); i++) {
-                if (selected[i]) {
-                    int dist = Math.abs(h.x - chickenHouse.get(i).x) + Math.abs(h.y - chickenHouse.get(i).y);
-                    minDist = Math.min(minDist, dist);
-                }
-            }
-            total += minDist;
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
-
-        return total;
     }
 }
