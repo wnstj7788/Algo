@@ -1,85 +1,118 @@
-import java.awt.Point;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.StringTokenizer;
-
+import java.io.*;
+import java.util.*;
 public class Main {
-	static int N, M, map[][], zeroCnt = 0, ans = Integer.MAX_VALUE;
-	static List<Point> list;
-	static Point sel[];
-	static class birus{
-		int r, c, time;
-		public birus(int r, int c, int time) {
-			this.r = r;
-			this.c = c;
-			this.time = time;
-		}
-	}
-	static int dr[] = {-1, 1, 0, 0};
-	static int dc[] = {0, 0, -1, 1};
-	public static void main(String[] args) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(in.readLine());
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-		map = new int[N][N];
-		list = new ArrayList<Point>();
-		for (int i = 0; i < N; i++) {
-			st = new StringTokenizer(in.readLine());
-			for (int j = 0; j < N; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
-				if(map[i][j] == 0)
-					zeroCnt ++;
-				if(map[i][j] == 2)
-					list.add(new Point(i, j));
-			}
-		}
-		sel = new Point[M];
-		comb(0, 0);
-		System.out.println((ans==Integer.MAX_VALUE)? -1 : ans);
-	}
-	private static void comb(int idx, int s_idx) {
-		if(s_idx == M) {
-			bfs();
-			return;
-		}
-		if(idx == list.size())
-			return;
-		sel[s_idx] = list.get(idx);
-		comb(idx+1, s_idx+1);
-		comb(idx+1, s_idx);
-	}
-	
-	private static void bfs() {
-		int zero = zeroCnt;
-		boolean visit[][] = new boolean[N][N];
-		Queue<birus> queue = new LinkedList<birus>();
-		for (int i = 0; i < M; i++) {
-			visit[sel[i].x][sel[i].y] = true;
-			queue.add(new birus(sel[i].x, sel[i].y, 0));
-		}
-		int time = 0;
-		while(!queue.isEmpty()) {
-			birus b = queue.poll();
-			time = b.time;
-			for (int d = 0; d < 4; d++) {
-				int nr = b.r + dr[d];
-				int nc = b.c + dc[d];
-				if(nr < 0 || nc < 0 || nr >= N || nc >= N || visit[nr][nc] || map[nr][nc] == 1)
-					continue;
-				visit[nr][nc] = true;
-				queue.add(new birus(nr, nc, b.time+1));
-				if(map[nr][nc] == 0)
-					zero --;
-			}
-		}
-		if(zero == 0) {
-			ans = Math.min(ans, time);
-		}
-	}
+    static int n,m;
+    static int map[][];
+    static int min = Integer.MAX_VALUE;
+    static ArrayList<Node>virus = new ArrayList<>();
+    static boolean visited[][];
+    static int copy_map[][];    //시간초 기록할 맵
+    static boolean virus_visited[]; //바이러스 조합 뽑기 위한 visted
+    static int virus_arr[];     //바이러스 조합 뽑기 위함
+    static int dx[] = {0,0,1,-1};
+    static int dy[] = {1,-1,0,0};
+    static int max=-1;
+    public static void main(String[] args) throws IOException{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String [] t  = br.readLine().split(" ");
+        n = Integer.parseInt(t[0]);
+        m = Integer.parseInt(t[1]);
+        copy_map = new int[n][n];
+        map = new int[n][n];
+        visited = new boolean[n][m];
+        
+        for(int i=0; i<n; i++) {
+            String[] input = br.readLine().split(" ");
+            for(int j=0; j<n; j++) {
+                map[i][j] = Integer.parseInt(input[j]);
+                if(map[i][j]==2) {
+                    virus.add(new Node(i,j,0)); // 바이러스를 놓을수 있는 위치
+                }
+            }
+        }
+        virus_visited = new boolean[virus.size()];
+        virus_arr = new int[m];
+        dfs(0,0);
+        if(min == Integer.MAX_VALUE) {
+            System.out.println(-1);
+        }
+        else {
+            System.out.println(min);
+        }
+    }
+    public static void dfs(int level, int start) {
+        if(level==m) {
+            bfs();
+            return ;
+        }
+        for(int i=start; i<virus.size(); i++) {
+            if(!virus_visited[i]) {
+                virus_arr[level]=i;
+                virus_visited[i] = true;
+                dfs(level+1,i+1);
+                virus_visited[i] = false;
+            }
+        }
+    }
+    public static void copy() {
+        for(int i=0; i<n; i++) {
+            for(int j=0; j<n; j++) {
+                if(map[i][j]==2) {
+                    copy_map[i][j]=0;
+                }
+                else {
+                    copy_map[i][j]= map[i][j];
+                }
+            }
+        }
+    }
+    public static boolean isPossible() {
+        for(int i=0; i<n; i++) {
+            for(int j=0; j<n; j++) {
+                if(copy_map[i][j]==0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    public static void bfs() {
+        max =-1;
+        copy();
+        visited = new boolean[n][n];
+        Queue<Node> q=  new LinkedList<>();
+        for(int i=0; i<m; i++) {
+            q.add(virus.get(virus_arr[i]));
+            int x = virus.get(virus_arr[i]).x;
+            int y = virus.get(virus_arr[i]).y;
+            copy_map[x][y]=2;
+        }
+        
+        while(!q.isEmpty()) {
+            Node a= q.poll();
+            max = Math.max(max, a.time);
+            for(int i=0; i<4; i++) {
+                int nx = a.x+dx[i];
+                int ny = a.y+dy[i];
+                if(nx>=0 && ny>=0 && nx<n && ny<n) {
+                    if(!visited[nx][ny] && copy_map[nx][ny]==0) {
+                        visited[nx][ny]=true;
+                        copy_map[nx][ny]=2;
+                        q.add(new Node(nx,ny,a.time+1));
+                    }
+                }
+            }
+        }
+        if(isPossible()) {
+            min = Math.min(min,max);
+        }
+    }
+}
+class Node{
+    int x,y,time;
+    Node(int x, int y, int time){
+        this.x=x;
+        this.y=y;
+        this.time =time;
+    }
 }
