@@ -1,25 +1,25 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		int N = sc.nextInt();
+	
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
 		
-		int arr[] = new int[N];
+		int N = Integer.parseInt(br.readLine());
 		
-		for (int i = 0; i < arr.length; i++) {
-			arr[i] = sc.nextInt();
+		int result[] = new int[201];
+		
+		st = new StringTokenizer(br.readLine());
+		
+		for(int i = 0; i < N; i++) {
+			result[100+Integer.parseInt(st.nextToken())]++;
 		}
 		
-		int M = sc.nextInt();
-		
-		int cnt =0;
-		
-		for (int i = 0; i < arr.length; i++) {
-			if(arr[i] == M) cnt ++;
-		}
-		
-		System.out.println(cnt);
+		System.out.println(result[100 + Integer.parseInt(br.readLine())]);
 		
 	}
 
