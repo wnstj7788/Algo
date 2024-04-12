@@ -1,24 +1,30 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Iterator;
 
 public class Main {
-	public static void main(String [] args) {
-		Scanner sc = new Scanner(System.in);
-		int a = sc.nextInt();
-		int b = sc.nextInt();
-		int c = sc.nextInt();
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		long result = 1;
 		
-		int abc = a*b*c;
+		for(int i = 0; i < 3; i ++) {
+			result *= Integer.parseInt(br.readLine());
+		}
 		
-		String str = Integer.toString(abc);
-		for(int i = 0; i < 10; i++) {
-			int cnt = 0;
-			for(int j = 0; j < str.length(); j++) {
-				if((str.charAt(j) - '0') == i) {
-					cnt++;
-				}
-			}
-			System.out.println(cnt);
+		String resultString = String.valueOf(result);
+		
+		int arr[] = new int[10];
+		
+		for (int i = 0; i < resultString.length(); i++) {
+			char temp = resultString.charAt(i);
+			arr[temp - '0']++;
+		}
+		
+		for (int i = 0; i < arr.length; i++) {
+			System.out.println(arr[i]);
 		}
 		
 	}
+
 }
