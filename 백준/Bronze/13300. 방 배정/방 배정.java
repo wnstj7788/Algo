@@ -34,12 +34,12 @@ public class Main {
 					if(map[i][j] < M) {
 						result++;
 					}else {
-						if(map[i][j] / M !=0 ) {
+						if(map[i][j] % M !=0 ) {
 
-							result = result + map[i][j] / 3 + 1;  
+							result = result + map[i][j] / M + 1;  
 						}
 						else {
-							result += map[i][j] / 3;
+							result += map[i][j] / M;
 						}
 					}
 				}
