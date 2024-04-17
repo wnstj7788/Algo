@@ -1,57 +1,55 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Stack;
 
 public class Main {
-
 	public static void main(String[] args) throws IOException {
-		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-		while(true) {
-			
-			String str = bf.readLine();
-			if(str.equals("."))
-				break;
-			Stack<Character> s = new Stack<Character>();
-			String result = "";
-			boolean flag = true;
-			for(int i=0; i<str.length(); i++) {
-				
-				/* 여는괄호 '(' 나 '[' 는 스택에 넣어준다. */
-				if(str.charAt(i) == '(')
-					s.push('(');
-				
-				else if(str.charAt(i) == '[')
-					s.push('[');
-				
-				/* 닫는괄호 ')' 나 ']' 는 스택이 비어있거나 여는괄호와 짝이 안맞는경우 -> 탈출한다. */
-				/* 스택이 비어있는경우 -> 입력이 ))] 와 같은경우, */
-				/* 짝이 안맞는경우 -> (([) 와 같은 경우, */
-				else if(str.charAt(i) == ')') {
-					if(s.isEmpty() || s.peek() != '(') {
-						flag = false;
-						break;
-					}
-					s.pop();
-				}
-				else if(str.charAt(i) == ']') {
-						if(s.isEmpty() || s.peek() != '[') {
-							flag = false;
-							break;
-						}
-						s.pop();
-						
-				}
-			}
-			
-			// 스택이 비어있지 않으면 균형이 맞지 않는 경우
-			if(!s.isEmpty())
-				flag = false;
-			result = (flag) ? "yes" : "no";
-			System.out.println(result);
-			
-		}
-		bf.close();
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        Stack<Character> s = new Stack<Character>();
+        while(true) {
+            s.clear();
+            StringBuffer text = new StringBuffer();
+            text.append(br.readLine());
+            if(text.charAt(text.length()-1) != '.') {
+                continue;
+            }
+            //"."하나만 들어오면 종료
+            if(text.toString().equals(".")) {
+                break;
+            }
+
+            boolean flag = true;
+            for(int i=0 ; i<text.length() ;i++) {
+                if(text.charAt(i) == '(' || text.charAt(i) == '[') {
+                    s.push(text.charAt(i));
+                }else if(text.charAt(i) == ')') {
+                    if(s.size()==0 || s.pop() != '(') {
+                        flag =false;
+                        break;
+                    }
+                }else if(text.charAt(i)==']') {
+                    if(s.size()==0 || s.pop() != '[') {
+                        flag =false;
+                        break;
+                    }
+                }
+            }
+            if(!s.isEmpty())
+                flag = false;
+            if(flag == true)
+                bw.write("yes\n");
+            else
+                bw.write("no\n");
+        }
+
+        br.close();
+        bw.flush();
+        bw.close();
 	}
 
 }
