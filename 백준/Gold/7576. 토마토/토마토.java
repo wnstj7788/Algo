@@ -1,92 +1,85 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.SQLOutput;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    static int N, M;
-    static int map[][];
-
-    static Queue<Tomato> q;
-
-    static class Tomato{
-        int x, y, time;
-
-        public Tomato(int x, int y, int time) {
-            this.x = x;
-            this.y = y;
-            this.time = time;
-        }
-
-    }
-
-    static boolean visited[][];
-
-    static int Tomatocnt;
-
-    static int dx[] = {-1,0,1,0};
-    static int dy[] = {0,-1,0,1};
-    static int ans = Integer.MIN_VALUE;
-    static int cnt;
-
+    static int n, m, days;
+    static int[] dx = {0, -1, 0, 1};
+    static int[] dy = {-1, 0, 1, 0};
+    static int[][] map;
+    static Queue<Point> q = new LinkedList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st  = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        map = new int[M][N];
-        visited = new boolean[M][N];
-        q = new LinkedList<>();
-        for (int i = 0; i < M; i++) {
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        m = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(st.nextToken());
+
+        map = new int[n][m];
+
+        for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < N; j++) {
-                int temp = Integer.parseInt(st.nextToken());
-                if(temp == 1){
-                    q.add(new Tomato(i,j, 0));
-                    visited[i][j] = true;
+            for (int j = 0; j < m; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+                if (map[i][j] == 1) {
+                    q.add(new Point(i, j));
                 }
-                if(temp == 0){
-                    Tomatocnt++;
-                }
-                map[i][j] = temp;
             }
         }
 
         bfs();
 
-        if(Tomatocnt == 0){
-            System.out.println(0);
-
-        }else if(Tomatocnt == cnt){
-            System.out.println(ans);
-        } else{
+        if (checkAllTomatoes()) {
+            System.out.println(days);
+        } else {
             System.out.println(-1);
         }
     }
 
-    private static void bfs(){
-        cnt = 0;
-        while(!q.isEmpty()){
-            Tomato now = q.poll();
-            for(int d = 0; d < 4; d++) {
-                int nx = now.x + dx[d];
-                int ny = now.y + dy[d];
+    public static void bfs() {
+        while (!q.isEmpty()) {
+            int size = q.size();
+            for (int i = 0; i < size; i++) {
+                Point now = q.poll();
 
-                if(nx >= 0 && nx < M && ny >= 0 && ny < N && !visited[nx][ny] && map[nx][ny] != -1){
-                    cnt++;
-                    visited[nx][ny] = true;
-                    q.add(new Tomato(nx, ny ,now.time +1));
+                for (int d = 0; d < 4; d++) {
+                    int nx = now.x + dx[d];
+                    int ny = now.y + dy[d];
+
+                    if (nx >= 0 && ny >= 0 && nx < n && ny < m && map[nx][ny] == 0) {
+                        map[nx][ny] = 1;
+                        q.add(new Point(nx, ny));
+                    }
                 }
-
             }
+            days++;
+        }
+        days--; // 마지막에 큐가 비워질 때 days가 하나 더 증가되므로 하나 감소시킵니다.
+    }
 
+    public static boolean checkAllTomatoes() {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (map[i][j] == 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
-             ans = Math.max(ans, now.time);
+    public static class Point {
+        int x;
+        int y;
+
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
     }
 }
