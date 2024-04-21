@@ -1,105 +1,93 @@
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
- 
-public class Main {
- 
-    static int R, C, res;
-    static char map[][];
-    static int[] dx = { -1, 0, 1, 0 }, dy = { 0, 1, 0, -1 };
-    static Queue<State> fire, jh;
-    static class State {
-        int x, y, d;
- 
-        public State(int x, int y, int d) {
-            super();
-            this.x = x;
-            this.y = y;
-            this.d = d;
-        }
-        
-    }
-    
-    private static boolean bfs() {
-        
-        while(!jh.isEmpty()) {
-            
-            // 불이 먼저 퍼진다.
-            int size = fire.size();
-            for (int i = 0; i < size; i++) {
-                State now = fire.poll();
-                
-                for (int d = 0; d < 4; d++) {
-                    int nx = now.x + dx[d];
-                    int ny = now.y + dy[d];
-                    
-                    // 범위를 벗어나면 pass
-                    if(nx < 0 || ny < 0 || nx >= R || ny >= C) continue;
-                    // 벽이거나 방문한 곳이면 pass
-                    if(map[nx][ny] == '#' || map[nx][ny] == 'F') continue;
-                    
-                    map[nx][ny] = 'F';
-                    fire.add(new State(nx, ny, now.d + 1));
-                }    
-            }    
-            
-            // 지훈이가 불을 피해 이동
-            size = jh.size();
-            for (int i = 0; i < size; i++) {
-                State now = jh.poll();
-                
-                for (int d = 0; d < 4; d++) {
-                    int nx = now.x + dx[d];
-                    int ny = now.y + dy[d];
-                    
-                    // 지훈이는 범위를 벗어나면 탈출
-                    if(nx < 0 || ny < 0 || nx >= R || ny >= C) {
-                        res = now.d + 1;
-                        return true;
+    import java.io.IOException;
+    import java.io.InputStreamReader;
+    import java.util.LinkedList;
+    import java.util.Queue;
+    import java.util.StringTokenizer;
+
+    public class Main {
+        static int dx[] = {-1,0,1,0};
+        static int dy[] = {0,-1,0,1};
+        static int N, M , result;
+        static char[][] map;
+        static Queue<Node> jihoonQ = new LinkedList<>();
+        static Queue<Node> fireQ = new LinkedList<>();
+
+        public static void main(String[] args) throws IOException {
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            N = Integer.parseInt(st.nextToken());
+            M = Integer.parseInt(st.nextToken());
+
+
+            map = new char[N][M];
+            for (int i = 0; i < N; i++) {
+                String temp = br.readLine();
+                char[] tempChar = temp.toCharArray();
+                for (int j = 0; j < M; j++) {
+                    char command = tempChar[j];
+                    map[i][j] = command;
+                    if(command == 'J'){
+                        jihoonQ.add(new Node(i,j));
                     }
-                    
-                    // 벽이거나 불이거나 방문한 곳이면 pass
-                    if(map[nx][ny] == '#' || map[nx][ny] == 'F' || map[nx][ny] == 'J') continue;
-                    
-                    map[nx][ny] = 'J';
-                    jh.add(new State(nx, ny, now.d + 1));
-                }    
+                    if(command  == 'F'){
+                        fireQ.add(new Node(i,j));
+                    }
+                }
+
+            } // input end
+
+            bfs();
+
+           
+        
+        }
+
+
+        public static void bfs() {
+            while (!jihoonQ.isEmpty()) {
+                int size = fireQ.size();
+                for (int i = 0; i < size; i++) {
+                    Node nowFire = fireQ.poll();
+                    for (int j = 0; j < 4; j++) {
+                        int nx = nowFire.x + dx[j];
+                        int ny = nowFire.y + dy[j];
+                        if (nx >= 0 && ny >= 0 && nx < N && ny < M && (map[nx][ny] == '.' || map[nx][ny] == 'J')) {
+                            map[nx][ny] = 'F';
+                            fireQ.add(new Node(nx, ny));
+                        }
+                    }
+                }
+        
+                size = jihoonQ.size();
+                for (int i = 0; i < size; i++) {
+                    Node nowJihoon = jihoonQ.poll();
+                    if (nowJihoon.x == 0 || nowJihoon.x == N - 1 || nowJihoon.y == 0 || nowJihoon.y == M - 1) {
+                        System.out.println(result + 1);
+                        return;
+                    }
+                    for (int j = 0; j < 4; j++) {
+                        int nx = nowJihoon.x + dx[j];
+                        int ny = nowJihoon.y + dy[j];
+                        if (nx >= 0 && ny >= 0 && nx < N && ny < M && map[nx][ny] == '.') {
+                            map[nx][ny] = 'J';
+                            jihoonQ.add(new Node(nx, ny));
+                        }
+                    }
+                }
+                result++;
+            }
+            System.out.println("IMPOSSIBLE");
+        }
+        
+
+        public static class Node{
+            int x;
+            int y;
+            public Node(int x, int y){
+                this.x = x;
+                this.y = y;
             }
         }
- 
-        return false;
+        
     }
-    
-    public static void main(String[] args) throws IOException {
-        
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
- 
-        R = Integer.parseInt(st.nextToken());
-        C = Integer.parseInt(st.nextToken());
-        map = new char[R][C];
-        
-        fire = new LinkedList<>();
-        jh = new LinkedList<>();
-        
-        for (int i = 0; i < R; i++) {
-            map[i] = br.readLine().toCharArray();
-            for (int j = 0; j < C; j++) {
-                // 지훈이의 위치
-                if(map[i][j] == 'J') {
-                    jh.add(new State(i, j, 0));
-                }
-                // 불의 위치
-                else if(map[i][j] == 'F') {
-                    fire.add(new State(i, j, 0));
-                }
-            }
-        }
-        
-        if(bfs()) System.out.println(res);
-        else System.out.println("IMPOSSIBLE");
-    }
-}
