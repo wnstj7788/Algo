@@ -1,64 +1,91 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
-	static int M,N,k;
-	static int[] dx = {-1,1,0,0};
-	static int[] dy = {0,0,-1,1};
-	
-	static int arr[][];
-	static boolean visited[][];
-	
-	
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		
-		int TC = sc.nextInt();
-		
-		for(int t =0; t< TC; t++ ) {
-			M = sc.nextInt();
-			N = sc.nextInt();
-			k =sc.nextInt();
-			
-			arr = new int[M][N];
-			visited = new boolean[M][N];
-			
-			for( int i = 0; i < k; i++) {
-				arr[sc.nextInt()][sc.nextInt()] = 1;
-				
-			}
-			
-			int cnt =0;
-			
-			
-			for (int i = 0; i < M; i++) {
-				for (int j = 0; j < N; j++) {
-					if(arr[i][j] ==1 && ! visited[i][j]) {
-						dfs(i,j);
-						cnt ++;
-					}
-				}
-				
-			}
-					System.out.println(cnt);
-					
-		}
-	}
-	
-	
-	public static void dfs(int x, int y) {
-		visited[x][y] = true;
-		
-		for (int i = 0; i < 4; i++) {
-			int nx = x + dx[i];
-			int ny = y + dy[i];
-			
-			
-			if(nx >= 0&& ny >=0 && nx<M && ny < N) {
-				if(arr[nx][ny] ==1 && !visited[nx][ny]) {
-					dfs(nx,ny);
-				}
-			}
-			
-		}
-	}
+
+    static int dx[] = {0,-1,0,1};
+    static int dy[] = {-1,0,1,0};
+    static int result = 0;
+    static int map[][];
+    static int N, M ;
+
+    public static void main(String[] args) throws NumberFormatException, IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        int TC = Integer.parseInt(br.readLine());
+        
+
+        for (int tc = 0; tc < TC; tc++) {
+            result = 0;
+            st = new StringTokenizer(br.readLine());
+            N = Integer.parseInt(st.nextToken());
+            M = Integer.parseInt(st.nextToken());
+            int size = Integer.parseInt(st.nextToken());
+
+            map = new int[N][M];
+
+            for (int k = 0; k < size; k++) {
+                st = new StringTokenizer(br.readLine());
+                int x = Integer.parseInt(st.nextToken());
+                int y = Integer.parseInt(st.nextToken());
+                map[x][y] = 1;
+            }
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    if(map[i][j] == 1){
+                        bfs(i, j);
+                        result++;
+                    }
+                }
+            }
+
+            System.out.println(result);
+
+            
+        }
+        
+    }
+
+    public static void bfs(int x, int y){
+        Queue<Node> q = new LinkedList<>();
+        boolean visited[][] = new boolean[N][M];
+
+        visited[x][y] = true;
+
+        q.add(new Node(x,y));
+
+        while(!q.isEmpty()){
+            Node now = q.poll();
+            for (int i = 0; i < 4; i++) {
+                int nx = now.x + dx[i];
+                int ny = now.y + dy[i];
+
+                if(nx >= 0 && nx < N && ny >= 0 && ny < M && !visited[nx][ny] && map[nx][ny] == 1){
+                    q.add(new Node(nx, ny));
+                    visited[nx][ny] = true;
+                    map[nx][ny] = 0;
+                }
+            }
+        }
+    }
+
+
+    public static class Node{
+        int x;
+        int y;
+
+        public Node(int x, int y){
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    
+    
 }
