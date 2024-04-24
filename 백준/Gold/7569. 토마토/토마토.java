@@ -6,104 +6,109 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static class Tomato{
-        int x, y, h, time;
-
-        public Tomato(int x, int y, int h, int time) {
-            this.x = x;
-            this.y = y;
-            this.h = h;
-            this.time = time;
-        }
-    }
-
-    static int N, M ,H;
-    static int dx[] = {-1,0,1,0,0,0};
-    static int dy[] = {0,-1,0,1,0,0};
-    static int dh[] = {0,0,0,0,-1,1};
-
+    static int dx[] = {0,1,0,-1,0,0};
+    static int dy[] = {1,0,-1,0,0,0};
+    static int dz[] = {0,0,0,0,-1,1};
     static int map[][][];
+    static int N, M , H;
+    static Queue<Node> q = new LinkedList<>();
     static boolean visited[][][];
-    static int TomatoCnt;
 
-    static Queue<Tomato> q = new LinkedList<>();
-    static int ans = Integer.MIN_VALUE;
-
+    //   1은 토마토, 0은 안익은 토마토, -1은 토마토 없음 
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken()); //가로
-        M = Integer.parseInt(st.nextToken()); //세로
-        H = Integer.parseInt(st.nextToken()); //높이
-        map = new int[M][N][H];
-        visited = new boolean[M][N][H];
-        for (int h = 0; h < H; h++) {
-            for (int i = 0; i < M; i++) {
+        M = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());
+        H = Integer.parseInt(st.nextToken());
+
+ 
+
+        map = new int[N][M][H];
+        visited =  new boolean[N][M][H];
+
+        for (int i = 0; i < H; i++) {
+            for (int j = 0; j < N; j++) {
                 st = new StringTokenizer(br.readLine());
-                for (int j = 0; j < N; j++) {
+                for (int j2 = 0; j2 < M; j2++) {
                     int temp = Integer.parseInt(st.nextToken());
+
                     if(temp == 1){
-                        q.add(new Tomato(i,j,h,0));
-                        visited[i][j][h] = true;
+                        q.add(new Node(j,j2,i));
 
                     }
-                    if(temp == 0){
-                        TomatoCnt++;
-                    }
-                    map[i][j][h] = temp;
-                }                
+                    map[j][j2][i] = temp;
+                }
             }
-            
-        } //input end
-
-        bfs();
-
-        if(TomatoCnt == 0){
-            System.out.println(0);
-        }else if(ans == Integer.MIN_VALUE){
+        }
+        int result = bfs();
+        if(cul()){
+            System.out.println(result);
+        }else{
             System.out.println(-1);
-        }else
-            System.out.println(ans);
+        }
+        
+    }
+
+    public static int bfs(){
+        int time = 0;
+        while(!q.isEmpty()){
+            int size = q.size();
+
+            for (int s = 0; s < size; s++) {
+                Node now = q.poll();
+
+            for (int i = 0; i < dx.length; i++) {
+                int nx = now.x + dx[i];
+                int ny = now.y + dy[i];
+                int nz = now.z + dz[i];
+
+                if(nx >= 0 && nx < N && ny >= 0 && ny < M && nz >=0 && nz < H && map[nx][ny][nz] == 0 && !visited[nx][ny][nz]){
+                    q.add(new Node(nx, ny, nz));
+                    visited[nx][ny][nz] = true;
+                    map[nx][ny][nz] = 1;
+                }
+            }
+                
+            }
+
+            time++;
+            
+        }
+
+        return time -1;
 
 
 
     }
 
-
-    private static void bfs(){
-        int cnt = 0;
-        while (!q.isEmpty()){
-            Tomato now = q.poll();
-            //print();
-            for (int d = 0; d < dx.length; d++) {
-                int nx =  now.x + dx[d];
-                int ny = now.y + dy[d];
-                int nh = now.h + dh[d];
-
-
-                if( nx >= 0 && nx < M && ny >= 0 && ny < N && nh >= 0 && nh < H && !visited[nx][ny][nh] && map[nx][ny][nh] != -1){
-                    cnt++;
-                    visited[nx][ny][nh] = true;
-                    q.add(new Tomato(nx, ny, nh , now.time +1));
+    public static boolean cul(){
+        for (int i = 0; i < H; i++) {
+            for (int j = 0; j < N; j++) {
+                for (int j2 = 0; j2 < M; j2++) {
+                    if(map[j][j2][i] == 0){
+                        return false;
+                    }
                 }
-
             }
-            if(cnt == TomatoCnt) ans = Math.max(ans,now.time);
+        }
+        return true;
+    }
+
+
+
+
+    public static class Node{
+        int x;
+        int y;
+        int z;
+
+        public Node(int x, int y, int z){
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
     }
-
-
-    private static void print() {
-        for (int h = 0; h <H; h++) {
-            for (int i = 0; i < map.length; i++) {
-                for (int j = 0; j < map[0].length; j++) {
-                    System.out.print(map[i][j][h] + " ") ;
-
-                }
-                System.out.println();
-            }
-            System.out.println("______________________________");
-        }
-    }
+    
 }
