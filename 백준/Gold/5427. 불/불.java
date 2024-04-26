@@ -1,134 +1,128 @@
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.Buffer;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
+
 public class Main {
-    static int N, M;
-    static char[][] map;
-    static boolean[][] visited;
 
-    static class getFire {
-        int x, y, d;
+static int dx[] = {-1,0,1,0};
+static int dy[]= {0,-1,0,1};
+static char map[][];
+static boolean visited[][];
+static int N, M;
+static Queue<Node> personQ;
+static Queue<Node> fireQ;
+static StringBuilder sb = new StringBuilder();
+public static void main(String[] args) throws NumberFormatException, IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    StringTokenizer st;
+    int TC = Integer.parseInt(br.readLine());
 
-        public getFire(int x, int y, int d) {
-            this.x = x;
-            this.y = y;
-            this.d = d;
+    for (int tc = 0; tc < TC; tc++) {
+        // q초기화
+        personQ = new LinkedList<>();
+        fireQ = new LinkedList<>();
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+
+        map = new char[M][N];
+        visited = new boolean[M][N];
+
+        for (int i = 0; i < M; i++) {
+            String line = br.readLine();
+            char[] lineChar = line.toCharArray();
+            for (int j = 0; j < N; j++) {
+                // 상근이라면 
+                if(lineChar[j] == '@'){
+                    personQ.add(new Node(i,j));
+                }else if(lineChar[j] == '*'){
+                    fireQ.add(new Node(i,j));
+                }
+                map[i][j] = lineChar[j];
+            }
         }
-    }
 
-    static int dx[] = {-1, 0, 1, 0};
-    static int dy[] = {0, -1, 0, 1};
-    static Queue<getFire> sang, fire;
+        bfs();
 
-    static int ans = Integer.MIN_VALUE;
+   }
+   System.out.println(sb.toString());
+    
+}
 
+public static void bfs(){
+    int time = 0;
+    boolean flag = false;
+    
+    while(!personQ.isEmpty()){
+        
+        int personSize = personQ.size();
+        int fireQSize = fireQ.size();
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int TC = Integer.parseInt(br.readLine());
-        StringTokenizer st;
-        for (int tc = 1; tc <= TC; tc++) {
+        for (int i = 0; i < fireQSize; i++) {
+            Node nowFire = fireQ.poll();
 
-            st = new StringTokenizer(br.readLine());
-            N = Integer.parseInt(st.nextToken());
-            M = Integer.parseInt(st.nextToken());
-            sang = new LinkedList<>();
-            fire = new LinkedList<>();
-            map = new char[M][N];
-            visited = new boolean[M][N];
-            for (int i = 0; i < M; i++) {
-                char[] ch = br.readLine().toCharArray();
-                for (int j = 0; j < N; j++) {
-                    char temp = ch[j];
-                    if (ch[j] == '@') {
-                        sang.add(new getFire(i, j, 0));
-                    }
-                    if (ch[j] == '*') {
-                        fire.add(new getFire(i, j, 0));
+            for (int j = 0; j < dx.length; j++) {
+                int nx = nowFire.x + dx[j];
+                int ny = nowFire.y + dy[j];
 
-                    }
-                    map[i][j] = ch[j];
+                if(nx >= 0 && nx < M && ny >= 0 && ny < N && map[nx][ny] == '.'){
+                    map[nx][ny] = '*';
+                    fireQ.add(new Node(nx, ny));
                 }
-            }//inout end
-
-            if (!bfs()) {
-                System.out.println("IMPOSSIBLE");
-            } else {
-                System.out.println(ans);
-            }
-        }//tc end
-
-    }//main end
-
-    private static boolean bfs() {
-        while (!sang.isEmpty()) {
-
-            //불
-            int fireSize = fire.size();
-            for (int size = 0; size < fireSize; size++) {
-                getFire now = fire.poll();
-                for (int i = 0; i < dx.length; i++) {
-                    int nx = now.x + dx[i];
-                    int ny = now.y + dy[i];
-
-                    if (nx >= 0 && nx < M && ny >= 0 && ny < N && map[nx][ny] != '*') {
-                        if (map[nx][ny] == '#' || map[nx][ny] == '*') {
-                            continue;
-                        } else {
-                            map[nx][ny] = '*';
-                            fire.add(new getFire(nx, ny, now.d + 1));
-                        }
-                    }
-
-                }
-
             }
 
-            //상근
-            int sangSize = sang.size();
-            for (int i = 0; i < sangSize; i++) {
+        }
+        // 불이 먼저 퍼지고 
 
-                getFire nowSang = sang.poll();
-                for (int d = 0; d < dx.length; d++) {
-                    int nx = nowSang.x + dx[d];
-                    int ny = nowSang.y + dy[d];
-                    if (nx < 0 || nx > M - 1 || ny < 0 || ny > N - 1) {
-                        ans = nowSang.d + 1;
-                        return true;
-                    }
+        // 사람이 퍼져야지 
 
-                    if (map[nx][ny] == '.' && map[nx][ny] != '*' && map[nx][ny] != '#') {
-                        map[nx][ny] = '@';
-                        sang.add(new getFire(nx, ny, nowSang.d + 1));
+        for (int i = 0; i < personSize; i++) {
+            Node nowPerson = personQ.poll();
 
-                    }
-                }
-
+            if(nowPerson.x == 0 || nowPerson.x ==M -1 || nowPerson.y == 0 ||nowPerson.y == N-1){
+                flag = true;
+                time++;
+                sb.append(time + "\n");
+                return;
             }
-       // print();
+        
+
+            for (int j = 0; j < dx.length; j++) {
+                int nx = nowPerson.x + dx[j];
+                int ny = nowPerson.y + dy[j];
+
+                if(nx >= 0 && nx < M && ny >= 0 && ny < N && map[nx][ny] == '.' && !visited[nx][ny]){
+                    map[nowPerson.x][nowPerson.y] = '.';
+                    map[nx][ny] = '@';
+                    personQ.add(new Node(nx, ny));
+                    visited[nx][ny] = true;
+                }
+            }
+
 
         }
 
-
-        return false;
+        time++;
+    }
+    if(!flag){
+        sb.append("IMPOSSIBLE" + "\n");
+        
     }
 
+}
 
-    private static void print() {
-        for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[0].length; j++) {
-                System.out.print(map[i][j] + " ");
-            }
-            System.out.println();
-        }
-        System.out.println("________________________________________");
+
+static class Node{
+    int x;
+    int y;
+
+    public Node(int x, int y){
+        this.x = x;
+        this.y = y;
     }
-
+}
 }
