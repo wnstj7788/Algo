@@ -1,95 +1,63 @@
-import java.awt.Point;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-	static int N;
-	static int map[][];
-	static ArrayList<Integer> myhome = new ArrayList<>();
-	static boolean visited[][];
-	static int dx[] = {-1,0,1,0};
-	static int dy[] = {0,-1,0,1};
-	static int Homedfs;
+	
+	static int[][] danji;
+	static boolean[][] visited;
+	static int[] dx = {0,0,-1,1};
+	static int[] dy = {-1,1,0,0};
+	static List<Integer> result;
+	static int cnt, N;
 
-	public static void main(String[] args) throws NumberFormatException, IOException {
+	public static void main(String[] args) throws IOException{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+		
+		result = new LinkedList<>(); 
 		N = Integer.parseInt(br.readLine());
-
-		map = new int[N][N];
-		visited = new boolean[N][N];
-
-		for (int i = 0; i < N; i++) {
-			String temp = br.readLine();
-			for (int j = 0; j < N; j++) {
-				map[i][j] = temp.charAt(j) - '0';
-			}
-		} // input end
+		danji = new int[N][N];
+		visited = new boolean[N][N]; //단지에 속해있는지
+		cnt = 1; //기준이 아파트(단지로 묶일 첫 아파트)가 포함될 때니 1로 초기화
 		
-		int cnt = 0; // 단지의 개수 
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < N; j++) {
-				if (map[i][j] == 1 && !visited[i][j]) {
-					Homedfs = 1;
-					dfs(i,j);
-					cnt += 1;
-					myhome.add(Homedfs);
+		for(int i=0;i<N;i++) {
+			String str = br.readLine();
+			for(int j=0;j<N;j++) {
+				danji[i][j] = str.charAt(j)-'0';
+			}
+		}
+		
+		
+		for(int x=0;x<N;x++) {
+			for(int y=0;y<N;y++) {
+				if(danji[x][y]==1 && !visited[x][y]) {
+					dfs(x,y);
+					result.add(cnt);
+					cnt = 1;
 				}
 			}
-		} // serch end
+		}
 		
-		System.out.println(cnt);
-		Collections.sort(myhome);
-		for (int num : myhome) {
-			System.out.println(num);
+		Collections.sort(result);
+		
+		bw.write(result.size()+"\n");
+		for(int r : result) bw.write(r+"\n");
+		bw.flush();
+		bw.close();
+
+	}
+	
+	public static void dfs(int x, int y) {
+		visited[x][y] = true;
+		
+		for(int i=0;i<4;i++) {
+			int nx = dx[i]+x;
+			int ny = dy[i]+y;
 			
-		}
-
-	}// main end
-	
-	
-	static void dfs(int si, int sj) {
-		visited[si][sj] = true;
-		for(int d = 0; d <4; d ++) {
-			int nextI = si + dx[d];
-			int nextJ = sj + dy[d];
-			if(nextI >= 0 && nextI < N && nextJ >=0 && nextJ <N && map[nextI][nextJ] == 1 &&!visited[nextI][nextJ]) {
-				Homedfs++;
-				dfs(nextI,nextJ);
+			if(nx>=0 && ny>=0 && nx<N && ny<N && !visited[nx][ny] && danji[nx][ny]==1) {
+				cnt++;
+				dfs(nx,ny);
 			}
 		}
-
 	}
-
-	static void bfs(int si, int sj) {
-		// 4방 탐색을 위한 4방 탐색 조건 명시
-
-		Queue<Point> q = new LinkedList<>();
-		q.add(new Point(si,sj));
-		
-		visited[si][sj] = true;
-		int homeCnt = 0;
-		
-		while(!q.isEmpty()) {
-			Point now = q.poll();
-			homeCnt ++;
-			for(int d = 0; d < 4 ; d++) {
-				int nextI = now.x + dx[d];
-				int nextJ = now.y + dy[d];
-				if(nextI >= 0 && nextI < N && nextJ >=0 && nextJ <N && map[nextI][nextJ] == 1 &&!visited[nextI][nextJ]) {
-					q.add(new Point(nextI, nextJ));
-					visited[nextI][nextJ] = true;
-				}
-		
-			}
-		}
-		myhome.add(homeCnt);
-
-	}
-
 }
