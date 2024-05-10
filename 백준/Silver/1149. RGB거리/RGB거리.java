@@ -1,27 +1,36 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
-
+import java.io.IOException;
+import java.util.StringTokenizer;
+ 
 public class Main {
-	public static void main(String[] args) throws NumberFormatException, IOException {
-		Scanner sc = new Scanner(System.in);
-		int n = sc.nextInt();
-		int dp[][] = new int[n + 1][3]; 
-		int map[][] = new int[n + 1][3]; 
-
-		for (int i = 1; i <= n; i++) {
-			for (int j = 0; j < 3; j++) { 
-				map[i][j] = sc.nextInt();
-			}
+ 
+ 
+	public static void main(String[] args) throws IOException {
+ 
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+ 
+		int N = Integer.parseInt(br.readLine());
+ 
+		int[][] Cost = new int[N][3];
+ 
+		for (int i = 0; i < N; i++) {
+			st = new StringTokenizer(br.readLine());
+ 
+			Cost[i][0] = Integer.parseInt(st.nextToken());
+			Cost[i][1] = Integer.parseInt(st.nextToken());
+			Cost[i][2] = Integer.parseInt(st.nextToken());
+ 
 		}
-		dp[0][0] = dp[0][1] = dp[0][2] = map[0][0] = map[0][1] = map[0][2] = 0;
-
-		for (int i = 1 ; i <= n; i++) {                               
-			dp[i][0] = Math.min(dp[i-1][1], dp[i-1][2]) + map[i][0]; 
-			dp[i][1] = Math.min(dp[i-1][0], dp[i-1][2]) + map[i][1]; 
-			dp[i][2] = Math.min(dp[i-1][0], dp[i-1][1]) + map[i][2]; 
+ 
+		for (int i = 1; i < N; i++) {
+			Cost[i][0] += Math.min(Cost[i - 1][1], Cost[i - 1][2]);
+			Cost[i][1] += Math.min(Cost[i - 1][0], Cost[i - 1][2]);
+			Cost[i][2] += Math.min(Cost[i - 1][0], Cost[i - 1][1]);
 		}
-		System.out.println(Math.min(dp[n][2],(Math.min(dp[n][0], dp[n][1]))));
+ 
+		System.out.println(Math.min(Math.min(Cost[N - 1][0], Cost[N - 1][1]), Cost[N - 1][2]));
 	}
+ 
 }
