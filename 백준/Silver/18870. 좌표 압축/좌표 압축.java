@@ -1,55 +1,43 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 public class Main {
+    static int arr[];
+    static TreeSet<Integer> ts;
+    static Map<Integer, Integer> tm;
+    static int N;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-        int N = Integer.parseInt(br.readLine());
-
-        HashMap<Integer, Integer> ranking = new HashMap<>();
-
-        int real[] = new int[N];
-        int sorted[] = new int[N];
-
-        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        arr = new int[N];
+        ts = new TreeSet<>();
+        
+        
         for (int i = 0; i < N; i++) {
             int temp = Integer.parseInt(st.nextToken());
-            real[i] = temp;
-            sorted[i] = temp;
+            arr[i] = temp; 
+            ts.add(temp);  
         }
 
-        Arrays.sort(sorted);
-        // -10, -9 ,2 ,4 ,4
+        tm = new HashMap<>();
+        int index = 0;
 
-        int rank = 0;
-        for (int v : sorted) {
-            /*
-             *  이 때 만약 앞선 원소가 이미 순위가 매겨졌다면
-               불필요한 연산을 막음 
-                           *  
-             */
-            if (!ranking.containsKey(v)) {
-                ranking.put(v, rank);
-                rank++;
-            }
-            
+    
+        for (int value : ts) {
+            tm.put(value, index++);
         }
-        
-        // map -> 0(-10), 1(-9), 2(2), 3(4)
 
         StringBuilder sb = new StringBuilder();
-        for (int key : real) {
-            int ranked = ranking.get(key);    // 원본 배열 원소(key)에 대한 value(순위)를 갖고온다.
-            sb.append(ranked).append(' ');
+        for (int i = 0; i < N; i++) {
+            sb.append(tm.get(arr[i])).append(" ");
         }
-
-        System.out.println(sb);
-
-
+        System.out.println(sb.toString().trim());
     }
 }
