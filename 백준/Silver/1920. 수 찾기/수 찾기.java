@@ -1,50 +1,42 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int[] arr;
+    static int arr[];
 
-
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        int n = scan.nextInt();
-        arr= new int[n];
-        for(int i=0;i<n;i++){
-            arr[i]= scan.nextInt();
+    public static void main(String[] args) throws IOException {
+        BufferedReader br  = new BufferedReader(new InputStreamReader(System.in));
+        int N = Integer.parseInt(br.readLine());
+        arr = new int[N];
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < N; i++) {
+            arr[i] = Integer.parseInt(st.nextToken());
         }
-        Arrays.sort(arr);
+        Arrays.sort(arr); // 정렬
 
-        int k =  scan.nextInt();
-        for(int i=0;i<k;i++){
-            int tmp= scan.nextInt();
-            int result = BinarySearch(tmp);
-            if(result>=0) System.out.println(1);
-            else System.out.println(0);
+        int K = Integer.parseInt(br.readLine());
+        st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < K; i++) {
+            System.out.println(binarySearch(0, N - 1, Integer.parseInt(st.nextToken())));
         }
     }
 
+    public static int binarySearch(int start, int end, int target) {
+        while (start <= end) {
+            int mid = (start + end) / 2;
 
-    static int BinarySearch(int n){
-
-        int left =0;
-        int right = arr.length-1;
-
-        while(left <=right){
-            int median = (left + right) / 2;
-
-            if (arr[median] == n) {
-                return median;
+            if (arr[mid] == target) {
+                return 1; // 찾음
             }
-            else if (arr[median] > n) {
-                right = median - 1;
+            if (arr[mid] < target) {
+                start = mid + 1; // 오른쪽 부분 탐색
+            } else {
+                end = mid - 1; // 왼쪽 부분 탐색
             }
-            else {
-                left = median + 1;
-            }
-
         }
-        return -1;
+        return 0; // 찾지 못함
     }
-
-
 }
