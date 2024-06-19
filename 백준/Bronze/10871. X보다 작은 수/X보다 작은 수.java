@@ -20,21 +20,21 @@ public class Main {
             list.add(Integer.parseInt(st.nextToken()));
         }
 
-        // for (int i = 0; i < N; i++) {
-        //     int temp = list.get(i);
-        //     if(temp < X){
-        //         sb.append(temp + " ");
-        //     }
-        // }
-
-        Iterator<Integer> iter = list.iterator();
-
-        while(iter.hasNext()){
-            Integer temp = iter.next();
+        for (int i = 0; i < N; i++) {
+            int temp = list.get(i);
             if(temp < X){
                 sb.append(temp + " ");
             }
         }
+
+        // Iterator<Integer> iter = list.iterator(); // 	15424 - 메모리	132 - 시간 
+
+        // while(iter.hasNext()){
+        //     Integer temp = iter.next();
+        //     if(temp < X){
+        //         sb.append(temp + " ");
+        //     }
+        // }
 
         System.out.println(sb.toString());
     
