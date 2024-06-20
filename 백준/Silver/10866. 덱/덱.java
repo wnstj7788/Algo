@@ -1,8 +1,8 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -11,7 +11,7 @@ public class Main {
 		StringTokenizer st;
 		StringBuilder sb = new StringBuilder();
 		
-		Deque<Integer> dq = new LinkedList<Integer>();
+		Deque<Integer> dq = new ArrayDeque<Integer>();
 		
 		int n = Integer.parseInt(br.readLine());
 		for (int i = 0; i < n; i++) {
