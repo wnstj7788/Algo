@@ -1,82 +1,75 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
-	static int N, M, D;
-	// 동서남북
-	static int dx[][] = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } }; // 동서남북
+    // 북, 동, 남, 서 방향 정의
+    static int[] dx = {-1, 0, 1, 0};
+    static int[] dy = {0, 1, 0, -1};
+    static int[][] map;
+    static int N, M;
+    static int cleanedCount = 0;
 
-	static int map[][];
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
 
-	static int move_cnt = 1;
+        st = new StringTokenizer(br.readLine());
+        int r = Integer.parseInt(st.nextToken());
+        int c = Integer.parseInt(st.nextToken());
+        int d = Integer.parseInt(st.nextToken());
 
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
+        map = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < M; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
 
-		N = sc.nextInt(); // 사각형 크기
-		M = sc.nextInt();
+        // 로봇 청소기 시작
+        startCleaningRoom(r, c, d);
+        System.out.println(cleanedCount);
+    }
 
-		map = new int[N][M];
-		int robot_i = sc.nextInt(); // 로봇의 좌표
-		int robot_j = sc.nextInt();
+    private static void startCleaningRoom(int x, int y, int d) {
+        while (true) {
+            // 1. 현재 칸을 청소
+            if (map[x][y] == 0) {
+                map[x][y] = 2;  // 청소된 칸은 2로 표시
+                cleanedCount++;
+            }
 
-		D = sc.nextInt(); // 방향
+            boolean found = false;
+            for (int i = 0; i < 4; i++) {
+                d = (d + 3) % 4;  // 반시계 방향으로 회전
+                int nx = x + dx[d];
+                int ny = y + dy[d];
 
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				map[i][j] = sc.nextInt();
-			}
-		}
+                if (map[nx][ny] == 0) {  // 청소되지 않은 칸이 있다면
+                    x = nx;
+                    y = ny;
+                    found = true;
+                    break;
+                }
+            }
 
-		// 0 이 청소가 되지 않은 빈칸, 1은 벽
-		// 방문배열 없이 이 자체로 가능할 듯
-		clean(robot_i, robot_j, D);
-		// print(map);
-		System.out.println(move_cnt);
+            if (!found) {  // 4방향 모두 청소가 되어있거나 벽일 때
+                int backDir = (d + 2) % 4;  // 뒤쪽 방향
+                int bx = x + dx[backDir];
+                int by = y + dy[backDir];
 
-	}
+                if (map[bx][by] == 1) {  // 뒤가 벽이라 후진 불가
+                    break;
+                }
 
-	static void clean(int r, int c, int d) {
-		//print(map);
-		// 구현되어야할 구현체
-		// 0. 현재칸 청소 확인
-		// 1. 4방탐색
-		// 2. 4방향 모두 청소되어있다면 보고있는 방향을 기준으로 후퇴 -> 0ß번으로
-		// 3. 4칸중 청소가 안되어있는 부분이 있다면 반시계 회전, 청소 실행 -> 0번으로
-		map[r][c] = 3; // 로봇이 지나간 구역 표시
-
-		for (int i = 0; i < 4; i++) {
-			d = (d + 3) %4;
-			int nr = r + dx[d][0];
-			int nc = c + dx[d][1];
-			if (nr >= 0 && nr < N && nc >= 0 && nc < M && map[nr][nc] == 0) {
-				move_cnt++;
-
-				clean(nr, nc, d); // 직진~!
-
-				return;
-
-			}
-		}
-
-		// 후진 연산
-		int moveBack = (d + 2) % 4; // 후진 연산
-		int br = r + dx[moveBack][0];
-		int bc = c + dx[moveBack][1];
-
-		if (br >= 0 && br < N && bc >= 0 && bc < M && map[br][bc] != 1) {
-			//System.out.println("나 실행중");
-			clean(br, bc, d);
-		}
-	}
-
-	static void print(int[][] origin) {
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				System.out.print(origin[i][j] + " ");
-			}
-			System.out.println();
-		}
-		System.out.println("--------------------------------------");
-	}
-
+                // 후진 가능
+                x = bx;
+                y = by;
+            }
+        }
+    }
 }
